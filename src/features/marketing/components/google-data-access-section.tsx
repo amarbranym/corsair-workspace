@@ -53,7 +53,7 @@ export function GoogleDataAccessSection() {
           for security, or to comply with law. You can disconnect plugins or revoke
           access from your Google Account at any time.
         </p>
-      </MarketingSection>
+      </MarketingContainer>
     </MarketingSection>
   );
 }
