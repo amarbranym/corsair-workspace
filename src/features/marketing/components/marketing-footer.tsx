@@ -58,6 +58,22 @@ export function MarketingFooter() {
               </li>
               <li>
                 <Link
+                  href={`${MARKETING_ROUTES.home}#google-data-access`}
+                  className="transition-colors hover:text-foreground"
+                >
+                  Google data access
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`${MARKETING_ROUTES.home}#integrations`}
+                  className="transition-colors hover:text-foreground"
+                >
+                  Integrations
+                </Link>
+              </li>
+              <li>
+                <Link
                   href={MARKETING_ROUTES.signup}
                   className="transition-colors hover:text-foreground"
                 >

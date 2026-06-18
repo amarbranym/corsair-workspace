@@ -16,10 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { GoogleDataAccessSection } from "@/features/marketing/components/google-data-access-section";
 import { MarketingContainer } from "@/features/marketing/components/marketing-container";
 import { MarketingEyebrow } from "@/features/marketing/components/marketing-eyebrow";
 import { MarketingSection } from "@/features/marketing/components/marketing-section";
-import { MARKETING_ROUTES } from "@/features/marketing/constants/marketing-routes";
+import {
+  MARKETING_ROUTES,
+  MARKETING_SUPPORT_EMAIL,
+} from "@/features/marketing/constants/marketing-routes";
 
 const features = [
   {
@@ -112,6 +116,28 @@ export function LandingHeroSection() {
               <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
                 Connect Gmail and Google Calendar, then manage your work through
                 a focused interface powered by Corsair integrations and AI.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <Link
+                  href={`${MARKETING_ROUTES.home}#google-data-access`}
+                  className="font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  See what Google data we access
+                </Link>
+                {" · "}
+                <Link
+                  href={MARKETING_ROUTES.privacyPolicy}
+                  className="font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Privacy Policy
+                </Link>
+                {" · "}
+                <a
+                  href={`mailto:${MARKETING_SUPPORT_EMAIL}`}
+                  className="font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Contact
+                </a>
               </p>
             </div>
 
@@ -361,6 +387,7 @@ export function LandingPageView() {
       <LandingFeaturesSection />
       <LandingHowItWorksSection />
       <LandingIntegrationsSection />
+      <GoogleDataAccessSection />
       <LandingTrustSection />
       <LandingCtaSection />
     </>

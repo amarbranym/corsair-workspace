@@ -37,6 +37,7 @@ export function LegalDocument({
             "[&_p]:leading-7",
             "[&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5",
             "[&_a]:font-medium [&_a]:text-primary [&_a]:underline-offset-4 hover:[&_a]:underline",
+            "[&_code]:rounded [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-xs [&_code]:text-foreground",
             "[&_strong]:text-foreground",
           )}
         >
