@@ -10,7 +10,7 @@ import { db } from "@/server/db";
 import { userPluginSettings } from "@/server/db/schema";
 import {
   ensureUserTenant,
-  getPluginRefreshToken,
+  getPluginRefreshTokenWithBackfill,
 } from "@/server/services/corsair-tenant.service";
 
 export type AgentCapabilities = {
@@ -111,12 +111,19 @@ export async function syncUserPluginSettings(
 export async function getAgentCapabilities(
   userId: string,
 ): Promise<AgentCapabilities> {
-  await ensureUserTenant(userId);
+  try {
+    await ensureUserTenant(userId);
+  } catch (error) {
+    console.warn("[plugins] tenant setup failed for agent capabilities:", error);
+    return { gmail: false, googlecalendar: false };
+  }
 
   const [settings, gmailToken, calendarToken] = await Promise.all([
     getUserPluginSettingsRecord(userId),
-    getPluginRefreshToken(userId, "gmail").catch(() => null),
-    getPluginRefreshToken(userId, "googlecalendar").catch(() => null),
+    getPluginRefreshTokenWithBackfill(userId, "gmail").catch(() => null),
+    getPluginRefreshTokenWithBackfill(userId, "googlecalendar").catch(
+      () => null,
+    ),
   ]);
 
   return {

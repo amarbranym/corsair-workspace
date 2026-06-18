@@ -26,17 +26,27 @@ export function PluginsPageView() {
     const oauthError = searchParams.get("oauth_error");
 
     if (connected === "gmail" || connected === "googlecalendar") {
-      void refreshConnectionStatus(connected);
-      const plugin = getCatalogPlugin(connected);
-      toast.success(
-        `${plugin?.name ?? connected} connected successfully.`,
-      );
-      window.history.replaceState({}, "", "/plugins");
+      void (async () => {
+        const status = await refreshConnectionStatus(connected);
+        const plugin = getCatalogPlugin(connected);
+        if (status === "connected") {
+          toast.success(
+            `${plugin?.name ?? connected} connected successfully.`,
+          );
+        } else {
+          toast.error(
+            `${plugin?.name ?? connected} could not stay connected. If Gmail works but Calendar does not, reconnect Calendar after this deploy.`,
+          );
+        }
+        window.history.replaceState({}, "", "/plugins");
+      })();
     } else if (oauthError) {
       const message =
         oauthError === "credentials_corrupt"
           ? "Stored Gmail/Calendar credentials were reset. Click Connect again."
-          : "Google sign-in was cancelled or failed. Try again.";
+          : oauthError === "callback_failed"
+            ? "Google connected but the refresh token was not saved. Revoke Corsair in Google Account settings, then connect again."
+            : "Google sign-in was cancelled or failed. Try again.";
       toast.error(message);
       window.history.replaceState({}, "", "/plugins");
     }

@@ -3,6 +3,7 @@ import { setupCorsair } from "corsair";
 import { env } from "@/env";
 import { corsair } from "@/server/integrations/corsair";
 import { isExpectedDisconnectedError } from "@/server/services/corsair-account-reset.service";
+import { backfillGoogleRefreshTokenFromSibling } from "@/server/services/google-oauth-refresh-token.service";
 
 export const OAUTH_PLUGIN_IDS = ["gmail", "googlecalendar"] as const;
 export type OAuthPluginId = (typeof OAUTH_PLUGIN_IDS)[number];
@@ -82,6 +83,21 @@ export async function getPluginRefreshToken(
   return tenant.googlecalendar.keys.get_refresh_token();
 }
 
+/** Reads refresh token, backfilling from the sibling Google plugin when needed. */
+export async function getPluginRefreshTokenWithBackfill(
+  userId: string,
+  pluginId: OAuthPluginId,
+): Promise<string | null> {
+  try {
+    return await readRefreshTokenWithRetry(userId, pluginId);
+  } catch (error) {
+    if (isExpectedDisconnectedError(error)) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 const TOKEN_READ_ATTEMPTS = 3;
 const TOKEN_READ_RETRY_MS = 300;
 
@@ -98,11 +114,25 @@ async function readRefreshTokenWithRetry(
 
   for (let attempt = 1; attempt <= TOKEN_READ_ATTEMPTS; attempt++) {
     try {
-      return await getPluginRefreshToken(userId, pluginId);
+      const token = await getPluginRefreshToken(userId, pluginId);
+      if (token) return token;
+
+      const backfilled = await backfillGoogleRefreshTokenFromSibling(
+        userId,
+        pluginId,
+      );
+      if (backfilled) return backfilled;
+
+      return null;
     } catch (error) {
       lastError = error;
       // A missing/corrupt account won't recover by retrying.
       if (isExpectedDisconnectedError(error)) {
+        const backfilled = await backfillGoogleRefreshTokenFromSibling(
+          userId,
+          pluginId,
+        );
+        if (backfilled) return backfilled;
         throw error;
       }
       if (attempt < TOKEN_READ_ATTEMPTS) {

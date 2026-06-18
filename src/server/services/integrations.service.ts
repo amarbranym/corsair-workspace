@@ -14,6 +14,7 @@ import {
   OAUTH_PLUGIN_IDS,
   type OAuthPluginId,
 } from "@/server/services/corsair-tenant.service";
+import { ensureGooglePluginRefreshToken } from "@/server/services/google-oauth-refresh-token.service";
 import { syncGoogleCalendarEvents } from "@/server/services/calendar-sync.service";
 import { registerCalendarWatchForUser } from "@/server/services/calendar-watch.service";
 import { syncGmailInbox } from "@/server/services/gmail-sync.service";
@@ -91,6 +92,21 @@ export async function handleOAuthCallback(code: string, state: string) {
     );
   } else {
     result = await runOAuthCallback(code, state);
+  }
+
+  if (!isOAuthPlugin(result.plugin)) {
+    throw new Error(`Unexpected OAuth plugin: ${result.plugin}`);
+  }
+
+  const hasRefreshToken = await ensureGooglePluginRefreshToken(
+    result.tenantId,
+    result.plugin,
+  );
+
+  if (!hasRefreshToken) {
+    throw new Error(
+      `Google did not persist a refresh token for ${result.plugin}. Revoke Corsair in your Google Account (Security → Third-party access), then connect again.`,
+    );
   }
 
   const tenant = corsair.withTenant(result.tenantId);

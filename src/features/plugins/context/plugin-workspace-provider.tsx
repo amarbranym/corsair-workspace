@@ -49,7 +49,9 @@ type PluginWorkspaceContextValue = {
   addPlugin: (pluginId: string) => void;
   removePlugin: (pluginId: string) => void;
   connectPlugin: (pluginId: string) => Promise<void>;
-  refreshConnectionStatus: (pluginId?: OAuthPluginId) => Promise<void>;
+  refreshConnectionStatus: (
+    pluginId?: OAuthPluginId,
+  ) => Promise<import("@/features/plugins/types/plugin.types").PluginConnectionStatus | null>;
   updateSettings: (pluginId: string, patch: Partial<PluginSettings>) => void;
   isInstalled: (pluginId: string) => boolean;
 };
@@ -142,10 +144,11 @@ export function PluginWorkspaceProvider({ children }: { children: ReactNode }) {
         setState((current) =>
           patchPluginConnectionStatus(current, pluginId, status),
         );
-        return;
+        return status;
       }
 
       await statusQuery.refetch();
+      return null;
     },
     [statusQuery, utils.integrations.getPluginStatus],
   );
