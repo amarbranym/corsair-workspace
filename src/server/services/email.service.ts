@@ -10,11 +10,22 @@ type SendOtpEmailInput = {
   flow: "signup" | "login";
 };
 
+function getOtpOriginHost() {
+  try {
+    return new URL(env.APP_URL).host;
+  } catch {
+    return "localhost:3000";
+  }
+}
+
 export async function sendOtpEmail({ email, code, flow }: SendOtpEmailInput) {
   const subject =
     flow === "signup"
       ? "Verify your Corsair Workspace account"
       : "Your Corsair Workspace login code";
+
+  const originHost = getOtpOriginHost();
+  const webOtpLine = `@${originHost} #${code}`;
 
   const html = `
     <div style="font-family: sans-serif; line-height: 1.6; color: #1a1916;">
@@ -22,8 +33,16 @@ export async function sendOtpEmail({ email, code, flow }: SendOtpEmailInput) {
       <p style="margin-top: 0;">Use this code to ${flow === "signup" ? "complete signup" : "log in"}. It expires in 5 minutes.</p>
       <p style="font-size: 28px; font-weight: 700; letter-spacing: 0.3em; margin: 24px 0;">${code}</p>
       <p style="color: #6b675f;">If you did not request this code, you can ignore this email.</p>
+      <p style="display: none; color: #6b675f; font-size: 12px;">${webOtpLine}</p>
     </div>
   `.trim();
+
+  const text = [
+    `Your Corsair Workspace verification code is ${code}.`,
+    "It expires in 5 minutes.",
+    "",
+    webOtpLine,
+  ].join("\n");
 
   if (!isSmtpConfigured()) {
     console.info(
@@ -40,6 +59,7 @@ export async function sendOtpEmail({ email, code, flow }: SendOtpEmailInput) {
       to: email,
       subject,
       html,
+      text,
     });
 
     console.info(`[auth] OTP email sent to ${email} (${info.messageId ?? "ok"})`);

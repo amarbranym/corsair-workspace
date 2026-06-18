@@ -272,7 +272,7 @@ export function TaskListView({ board }: { board: TaskBoard }) {
 
   return (
     <>
-      <div className="h-full overflow-y-auto rounded-xl border border-border/60 bg-card">
+      <div className="rounded-xl border border-border/60 bg-card">
         {tasks.map((task) => (
           <TaskListRow
             key={task.id}

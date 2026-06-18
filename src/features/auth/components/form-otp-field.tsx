@@ -25,6 +25,8 @@ type FormOtpFieldProps<T extends FieldValues> = {
   description?: string;
   disabled?: boolean;
   className?: string;
+  onComplete?: (code: string) => void;
+  autoFocus?: boolean;
 };
 
 export function FormOtpField<T extends FieldValues>({
@@ -34,6 +36,8 @@ export function FormOtpField<T extends FieldValues>({
   description,
   disabled,
   className,
+  onComplete,
+  autoFocus,
 }: FormOtpFieldProps<T>) {
   return (
     <Controller
@@ -43,10 +47,15 @@ export function FormOtpField<T extends FieldValues>({
         <Field data-invalid={fieldState.invalid} className={cn("text-center", className)}>
           <InputOTP
             id={field.name}
+            name="one-time-code"
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            autoFocus={autoFocus}
             maxLength={OTP_LENGTH}
             pattern={REGEXP_ONLY_DIGITS}
             value={field.value ?? ""}
             onChange={field.onChange}
+            onComplete={onComplete}
             disabled={disabled}
             containerClassName="justify-center "
           >

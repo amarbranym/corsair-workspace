@@ -17,6 +17,7 @@ import {
   OTP_LENGTH,
 } from "@/features/auth/constants/auth.constants";
 import { useAuthApi } from "@/features/auth/hooks/use-auth-api";
+import { useOtpAutofill } from "@/features/auth/hooks/use-otp-autofill";
 import { useOtpResend } from "@/features/auth/hooks/use-otp-resend";
 import {
   clearAuthSession,
@@ -79,6 +80,32 @@ export function VerifyOtpForm({ email, flow }: VerifyOtpFormProps) {
     }
   }, [email, flow, resendOtp, form]);
 
+  const isLoading = isVerifying || isResendLoading;
+
+  const applyOtpCode = useCallback(
+    (code: string, options?: { autoSubmit?: boolean }) => {
+      const normalized = code.replace(/\D/g, "").slice(0, OTP_LENGTH);
+      if (normalized.length !== OTP_LENGTH) return;
+      form.setValue("otp", normalized, { shouldValidate: true });
+      if (options?.autoSubmit && !isVerifying) {
+        setTimeout(() => submitRef.current(), 300);
+      }
+    },
+    [form, isVerifying],
+  );
+
+  const handleOtpComplete = useCallback(
+    (code: string) => {
+      applyOtpCode(code, { autoSubmit: true });
+    },
+    [applyOtpCode],
+  );
+
+  useOtpAutofill({
+    onCode: (code) => applyOtpCode(code, { autoSubmit: true }),
+    enabled: !isLoading,
+  });
+
   const { cooldown, isResending, canResend, resend } =
     useOtpResend(handleResend);
 
@@ -134,8 +161,6 @@ export function VerifyOtpForm({ email, flow }: VerifyOtpFormProps) {
     return () => clearTimeout(timer);
   }, [form]);
 
-  const isLoading = isVerifying || isResendLoading;
-
   return (
     <AuthCard title="Verify your email" description={description}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
@@ -156,6 +181,8 @@ export function VerifyOtpForm({ email, flow }: VerifyOtpFormProps) {
             control={form.control}
             name="otp"
             disabled={isLoading}
+            autoFocus
+            onComplete={handleOtpComplete}
           />
 
           <Button

@@ -98,7 +98,7 @@ export function TaskBoardView({ board }: TaskBoardViewProps) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex min-h-0 flex-1 gap-4 overflow-x-auto pb-2">
+        <div className="flex gap-4 overflow-x-auto pb-2">
           {TASK_COLUMNS.map((column) => (
             <TaskColumn
               key={column.id}

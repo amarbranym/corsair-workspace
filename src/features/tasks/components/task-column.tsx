@@ -36,7 +36,7 @@ export function TaskColumn({
   return (
     <section
       className={cn(
-        "relative flex min-h-0 min-w-[300px] flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 bg-muted/20",
+        "relative flex min-w-[300px] flex-1 flex-col rounded-2xl border border-border/60 bg-muted/20",
         "before:absolute before:inset-x-0 before:top-0 before:h-1 before:content-['']",
         meta.accentClass,
       )}
@@ -62,7 +62,7 @@ export function TaskColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex min-h-[400px] flex-1 flex-col gap-3 overflow-y-auto px-3 pb-3 transition-colors",
+          "flex min-h-[200px] flex-col gap-3 px-3 pb-3 transition-colors",
           isOver && "bg-primary/5",
         )}
       >
